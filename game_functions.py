@@ -3,6 +3,7 @@ import pygame
 
 from bullet import Bullet
 from bat import Bat
+from time import sleep
 
 def check_keydown_events(event, ai_settings, screen, ship, bullets):
   if event.key == pygame.K_RIGHT:
@@ -40,8 +41,9 @@ def update_screen(ai_settings, screen, ship, bats, bullets):
 
   pygame.display.flip()
 
-def update_bullets(bats, bullets):
-  pygame.sprite.groupcollide(bullets, bats, True, True)
+def update_bullets(ai_settings, screen, ship, bats, bullets):
+  check_bullet_alien_collisions(ai_settings, screen, ship, bats, bullets)
+
   bullets.update()
 
   for bullet in bullets.copy():
@@ -83,9 +85,23 @@ def create_fleet(ai_settings, screen, ship, bats):
     for bat_number in range(number_bats_x):
       create_bat(ai_settings, screen, bats, bat_number, row_number)
 
-def update_bats(ai_settings, bats):
+def ship_hit(ai_settings, stats, screen, ship, bats, bullets):
+  stats.ships_left -= 1
+
+  bats.empty()
+  bullets.empty()
+
+  create_fleet(ai_settings, screen, ship, bats)
+  ship.center_ship()
+
+  sleep(0.5)
+
+def update_bats(ai_settings, stats, screen, ship, bats, bullets):
   check_fleet_edges(ai_settings, bats)
   bats.update()
+
+  if pygame.sprite.spritecollideany(ship, bats):
+    ship_hit(ai_settings, stats, screen, ship, bats, bullets)
 
 def check_fleet_edges(ai_settings, bats):
   for bat in bats.sprites():
@@ -97,3 +113,10 @@ def change_fleet_direction(ai_settings, bats):
   for bat in bats.sprites():
     bat.rect.y += ai_settings.fleet_drop_speed
   ai_settings.fleet_direction *= -1
+
+def check_bullet_alien_collisions(ai_settings, screen, ship, bats, bullets):
+  pygame.sprite.groupcollide(bullets, bats, True, True)
+
+  if len(bats) == 0:
+    bullets.empty()
+    create_fleet(ai_settings, screen, ship, bats)
