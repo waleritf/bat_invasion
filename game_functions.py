@@ -102,6 +102,8 @@ def update_bats(ai_settings, stats, screen, ship, bats, bullets):
 
   if pygame.sprite.spritecollideany(ship, bats):
     ship_hit(ai_settings, stats, screen, ship, bats, bullets)
+  
+  check_bats_bottom(ai_settings, stats, screen, ship, bats, bullets)
 
 def check_fleet_edges(ai_settings, bats):
   for bat in bats.sprites():
@@ -120,3 +122,10 @@ def check_bullet_alien_collisions(ai_settings, screen, ship, bats, bullets):
   if len(bats) == 0:
     bullets.empty()
     create_fleet(ai_settings, screen, ship, bats)
+
+def check_bats_bottom(ai_settings, stats, screen, ship, bats, bullets):
+  screen_rect = screen.get_rect()
+  for bat in bats.sprites():
+    if bat.rect.bottom >= screen_rect.bottom:
+      ship_hit(ai_settings, stats, screen, ship, bats, bullets)
+      break
