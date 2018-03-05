@@ -41,8 +41,7 @@ def update_screen(ai_settings, screen, ship, bats, bullets):
   pygame.display.flip()
 
 def update_bullets(bats, bullets):
-  collisions = pygame.sprite.groupcollide(bullets, bats, True, True)
-
+  pygame.sprite.groupcollide(bullets, bats, True, True)
   bullets.update()
 
   for bullet in bullets.copy():
@@ -97,4 +96,4 @@ def check_fleet_edges(ai_settings, bats):
 def change_fleet_direction(ai_settings, bats):
   for bat in bats.sprites():
     bat.rect.y += ai_settings.fleet_drop_speed
-  ai_settings.feet_direction *= -1
+  ai_settings.fleet_direction *= -1

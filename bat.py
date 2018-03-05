@@ -20,11 +20,8 @@ class Bat(Sprite):
     self.screen.blit(self.image, self.rect)
 
   def update(self):
-    print('update bat')
-    self.x = (self.ai_settings.bat_speed_factor *
-              self.ai_settings.fleet_direction)
-    self.rect.x = self.x
-
+    self.x += self.ai_settings.bat_speed_factor * self.ai_settings.fleet_direction
+    self.rect.x = int(self.x)
 
   def check_edges(self):
     screen_rect = self.screen.get_rect()
