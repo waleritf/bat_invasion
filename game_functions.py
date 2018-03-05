@@ -86,15 +86,18 @@ def create_fleet(ai_settings, screen, ship, bats):
       create_bat(ai_settings, screen, bats, bat_number, row_number)
 
 def ship_hit(ai_settings, stats, screen, ship, bats, bullets):
-  stats.ships_left -= 1
+  if stats.ships_left > 0:
+    stats.ships_left -= 1
 
-  bats.empty()
-  bullets.empty()
+    bats.empty()
+    bullets.empty()
 
-  create_fleet(ai_settings, screen, ship, bats)
-  ship.center_ship()
+    create_fleet(ai_settings, screen, ship, bats)
+    ship.center_ship()
 
-  sleep(0.5)
+    sleep(0.5)
+  else:
+    stats.game_active = False
 
 def update_bats(ai_settings, stats, screen, ship, bats, bullets):
   check_fleet_edges(ai_settings, bats)
