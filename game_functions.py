@@ -33,11 +33,12 @@ def check_events(ai_settings, screen, ship, bullets, bats, stats, play_button):
       mouse_x, mouse_y = pygame.mouse.get_pos()
       check_play_button(ai_settings, screen, stats, ship, bullets, bats, play_button, mouse_x, mouse_y)
 
-def update_screen(ai_settings, screen, stats, ship, bats, bullets, play_button):
+def update_screen(ai_settings, screen, stats, ship, bats, bullets, play_button, sb):
   screen.fill(ai_settings.bg_color)
 
   ship.blitme()
   bats.draw(screen)
+  sb.show_score()
 
   for bullet in bullets.sprites():
     bullet.draw_bullet()
@@ -47,8 +48,8 @@ def update_screen(ai_settings, screen, stats, ship, bats, bullets, play_button):
 
   pygame.display.flip()
 
-def update_bullets(ai_settings, screen, ship, bats, bullets):
-  check_bullet_bat_collisions(ai_settings, screen, ship, bats, bullets)
+def update_bullets(ai_settings, screen, ship, bats, bullets, stats, sb):
+  check_bullet_bat_collisions(ai_settings, screen, ship, bats, bullets, stats, sb)
 
   bullets.update()
 
@@ -126,8 +127,15 @@ def change_fleet_direction(ai_settings, bats):
     bat.rect.y += ai_settings.fleet_drop_speed
   ai_settings.fleet_direction *= -1
 
-def check_bullet_bat_collisions(ai_settings, screen, ship, bats, bullets):
-  pygame.sprite.groupcollide(bullets, bats, True, True)
+def check_bullet_bat_collisions(ai_settings, screen, ship, bats, bullets, stats, sb):
+  collisions = pygame.sprite.groupcollide(bullets, bats, True, True)
+
+  if collisions:
+    for bats in collisions.values():
+      stats.score += ai_settings.bat_points * len(bats)
+
+    sb.prepare_score()
+    check_high_score(stats, sb)
 
   if len(bats) == 0:
     bullets.empty()
@@ -144,6 +152,7 @@ def check_bats_bottom(ai_settings, stats, screen, ship, bats, bullets):
 def check_play_button(ai_settings, screen, stats, ship, bullets, bats, play_button, mouse_x, mouse_y):
   button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
   if button_clicked and not stats.game_active:
+    ai_settings.initialize_dynamic_settings()
     pygame.mouse.set_visible(False)
     stats.reset_stats()
     stats.game_active = True
@@ -151,3 +160,8 @@ def check_play_button(ai_settings, screen, stats, ship, bullets, bats, play_butt
     bullets.empty()
     create_fleet(ai_settings, screen, ship, bats)
     ship.center_ship()
+
+def check_high_score(stats, sb):
+  if stats.score > stats.high_score:
+    stats.high_score = stats.score
+    sb.prepare_high_score()
