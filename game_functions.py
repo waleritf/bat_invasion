@@ -21,7 +21,7 @@ def check_keyup_events(event, ship):
   if event.key == pygame.K_LEFT:
     ship.moving_left = False
 
-def check_events(ai_settings, screen, ship, bullets, bats, stats, play_button):
+def check_events(ai_settings, screen, ship, bullets, bats, stats, sb, play_button):
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
       sys.exit()
@@ -31,7 +31,7 @@ def check_events(ai_settings, screen, ship, bullets, bats, stats, play_button):
       check_keyup_events(event, ship)
     elif event.type == pygame.MOUSEBUTTONDOWN:
       mouse_x, mouse_y = pygame.mouse.get_pos()
-      check_play_button(ai_settings, screen, stats, ship, bullets, bats, play_button, mouse_x, mouse_y)
+      check_play_button(ai_settings, screen, stats, sb, ship, bullets, bats, play_button, mouse_x, mouse_y)
 
 def update_screen(ai_settings, screen, stats, ship, bats, bullets, play_button, sb):
   screen.fill(ai_settings.bg_color)
@@ -92,9 +92,10 @@ def create_fleet(ai_settings, screen, ship, bats):
     for bat_number in range(number_bats_x):
       create_bat(ai_settings, screen, bats, bat_number, row_number)
 
-def ship_hit(ai_settings, stats, screen, ship, bats, bullets):
+def ship_hit(ai_settings, stats, sb, screen, ship, bats, bullets):
   if stats.ships_left > 0:
     stats.ships_left -= 1
+    sb.prepare_ships()
 
     bats.empty()
     bullets.empty()
@@ -107,14 +108,14 @@ def ship_hit(ai_settings, stats, screen, ship, bats, bullets):
     stats.game_active = False
     pygame.mouse.set_visible(True)
 
-def update_bats(ai_settings, stats, screen, ship, bats, bullets):
+def update_bats(ai_settings, stats, sb, screen, ship, bats, bullets):
   check_fleet_edges(ai_settings, bats)
   bats.update()
 
   if pygame.sprite.spritecollideany(ship, bats):
-    ship_hit(ai_settings, stats, screen, ship, bats, bullets)
+    ship_hit(ai_settings, stats, sb, screen, ship, bats, bullets)
   
-  check_bats_bottom(ai_settings, stats, screen, ship, bats, bullets)
+  check_bats_bottom(ai_settings, stats, sb, screen, ship, bats, bullets)
 
 def check_fleet_edges(ai_settings, bats):
   for bat in bats.sprites():
@@ -140,16 +141,18 @@ def check_bullet_bat_collisions(ai_settings, screen, ship, bats, bullets, stats,
   if len(bats) == 0:
     bullets.empty()
     ai_settings.increase_speed()
+    stats.level += 1
+    sb.prepare_level()
     create_fleet(ai_settings, screen, ship, bats)
 
-def check_bats_bottom(ai_settings, stats, screen, ship, bats, bullets):
+def check_bats_bottom(ai_settings, stats, sb, screen, ship, bats, bullets):
   screen_rect = screen.get_rect()
   for bat in bats.sprites():
     if bat.rect.bottom >= screen_rect.bottom:
-      ship_hit(ai_settings, stats, screen, ship, bats, bullets)
+      ship_hit(ai_settings, stats, sb, screen, ship, bats, bullets)
       break
 
-def check_play_button(ai_settings, screen, stats, ship, bullets, bats, play_button, mouse_x, mouse_y):
+def check_play_button(ai_settings, screen, stats, sb, ship, bullets, bats, play_button, mouse_x, mouse_y):
   button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
   if button_clicked and not stats.game_active:
     ai_settings.initialize_dynamic_settings()
@@ -160,6 +163,10 @@ def check_play_button(ai_settings, screen, stats, ship, bullets, bats, play_butt
     bullets.empty()
     create_fleet(ai_settings, screen, ship, bats)
     ship.center_ship()
+    sb.prepare_score()
+    sb.prepare_high_score()
+    sb.prepare_level()
+    sb.prepare_ships()
 
 def check_high_score(stats, sb):
   if stats.score > stats.high_score:

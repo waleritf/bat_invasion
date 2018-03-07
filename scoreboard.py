@@ -1,4 +1,6 @@
 import pygame.font
+from pygame.sprite import Group
+from ship import Ship
 
 class Scoreboard():
   def __init__(self, ai_settings, screen, stats):
@@ -12,6 +14,8 @@ class Scoreboard():
 
     self.prepare_score()
     self.prepare_high_score()
+    self.prepare_level()
+    self.prepare_ships()
 
   def prepare_score(self):
     score_str = str(self.stats.score)
@@ -25,6 +29,8 @@ class Scoreboard():
   def show_score(self):
     self.screen.blit(self.score_image, self.score_rect)
     self.screen.blit(self.high_score_image, self.high_score_rect)
+    self.screen.blit(self.level_image, self.level_rect)
+    self.ships.draw(self.screen)
   
   def prepare_high_score(self):
     high_score_str = str(self.stats.high_score)
@@ -35,3 +41,22 @@ class Scoreboard():
     self.high_score_rect = self.high_score_image.get_rect()
     self.high_score_rect.centerx = self.screen_rect.centerx
     self.high_score_rect.top = self.score_rect.top
+
+  def prepare_level(self):
+    self.level_image = self.font.render(str(self.stats.level), True,
+      self.text_color, self.ai_settings.bg_color)
+    
+    self.level_rect = self.level_image.get_rect()
+    self.level_rect.right = self.score_rect.right
+    self.level_rect.top = self.score_rect.bottom + 10
+
+  def prepare_ships(self):
+    self.ships = Group()
+
+    for ship_number in range(self.stats.ships_left + 1):
+      ship = Ship(self.ai_settings, self.screen)
+      ship.rect.width /= 4
+      ship.rect.height /= 4
+      ship.rect.x = 10 + ship_number * ship.rect.width
+      ship.rect.y = 10
+      self.ships.add(ship)
