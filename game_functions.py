@@ -48,7 +48,7 @@ def update_screen(ai_settings, screen, stats, ship, bats, bullets, play_button):
   pygame.display.flip()
 
 def update_bullets(ai_settings, screen, ship, bats, bullets):
-  check_bullet_alien_collisions(ai_settings, screen, ship, bats, bullets)
+  check_bullet_bat_collisions(ai_settings, screen, ship, bats, bullets)
 
   bullets.update()
 
@@ -104,7 +104,7 @@ def ship_hit(ai_settings, stats, screen, ship, bats, bullets):
     sleep(0.5)
   else:
     stats.game_active = False
-    pygame.mouse.visible(True)
+    pygame.mouse.set_visible(True)
 
 def update_bats(ai_settings, stats, screen, ship, bats, bullets):
   check_fleet_edges(ai_settings, bats)
@@ -126,11 +126,12 @@ def change_fleet_direction(ai_settings, bats):
     bat.rect.y += ai_settings.fleet_drop_speed
   ai_settings.fleet_direction *= -1
 
-def check_bullet_alien_collisions(ai_settings, screen, ship, bats, bullets):
+def check_bullet_bat_collisions(ai_settings, screen, ship, bats, bullets):
   pygame.sprite.groupcollide(bullets, bats, True, True)
 
   if len(bats) == 0:
     bullets.empty()
+    ai_settings.increase_speed()
     create_fleet(ai_settings, screen, ship, bats)
 
 def check_bats_bottom(ai_settings, stats, screen, ship, bats, bullets):
