@@ -24,7 +24,7 @@ def run_game():
   play_button = Button(ai_settings, screen, "Play")
 
   while True:
-    gf.check_events(ai_settings, screen, ship, bullets, stats, play_button)
+    gf.check_events(ai_settings, screen, ship, bullets, bats, stats, play_button)
 
     if stats.game_active:
       ship.update()

@@ -21,7 +21,7 @@ def check_keyup_events(event, ship):
   if event.key == pygame.K_LEFT:
     ship.moving_left = False
 
-def check_events(ai_settings, screen, ship, bullets, stats, play_button):
+def check_events(ai_settings, screen, ship, bullets, bats, stats, play_button):
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
       sys.exit()
@@ -31,7 +31,7 @@ def check_events(ai_settings, screen, ship, bullets, stats, play_button):
       check_keyup_events(event, ship)
     elif event.type == pygame.MOUSEBUTTONDOWN:
       mouse_x, mouse_y = pygame.mouse.get_pos()
-      check_play_button(stats, play_button, mouse_x, mouse_y)
+      check_play_button(ai_settings, screen, stats, ship, bullets, bats, play_button, mouse_x, mouse_y)
 
 def update_screen(ai_settings, screen, stats, ship, bats, bullets, play_button):
   screen.fill(ai_settings.bg_color)
@@ -139,6 +139,11 @@ def check_bats_bottom(ai_settings, stats, screen, ship, bats, bullets):
       ship_hit(ai_settings, stats, screen, ship, bats, bullets)
       break
 
-def check_play_button(stats, play_button, mouse_x, mouse_y):
+def check_play_button(ai_settings, screen, stats, ship, bullets, bats, play_button, mouse_x, mouse_y):
   if play_button.rect.collidepoint(mouse_x, mouse_y):
+    stats.reset_stats()
     stats.game_active = True
+    bats.empty()
+    bullets.empty()
+    create_fleet(ai_settings, screen, ship, bats)
+    ship.center_ship()
